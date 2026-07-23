@@ -65,7 +65,7 @@ const AddTransactionForm = ({ onAdd }) => {
         onChange={(e) => setAmount(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAdd())}
         placeholder="Amount"
-        className="focus-ring w-full rounded-lg border border-ink/10 bg-base p-2.5 text-sm text-ink"
+        className="focus-ring w-full rounded-lg border border-ink/10 bg-ink/5 p-2.5 text-sm text-ink"
       />
       <input
         type="text"
@@ -74,7 +74,7 @@ const AddTransactionForm = ({ onAdd }) => {
         onChange={(e) => setNote(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAdd())}
         placeholder="Note (optional)"
-        className="focus-ring w-full rounded-lg border border-ink/10 bg-base p-2.5 text-sm text-ink placeholder:text-ink/25"
+        className="focus-ring w-full rounded-lg border border-ink/10 bg-ink/5 p-2.5 text-sm text-ink placeholder:text-ink/25"
       />
 
       <div className="flex gap-2">

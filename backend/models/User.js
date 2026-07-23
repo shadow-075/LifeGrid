@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema(
       // DiceBear avatar, seeded with a random string so every user gets a unique default
       default: function () {
         return `https://api.dicebear.com/10.x/thumbs/svg?seed=${Math.random().toString(36).slice(2, 10)}`;
-      },
+      },  
     },
     isPublic: {
       type: Boolean,

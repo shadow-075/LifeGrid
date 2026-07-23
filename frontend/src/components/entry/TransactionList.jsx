@@ -10,7 +10,7 @@ const TransactionList = ({ transactions, onRemove }) => {
   return (
     <div className="space-y-2">
       {transactions.map((t, i) => (
-        <div key={i} className="flex items-center gap-3 rounded-lg bg-ink/5 px-3 py-2.5">
+        <div key={i} className="flex items-start gap-3 rounded-lg bg-ink/5 px-3 py-2.5">
           <span
             className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
               t.type === 'earned' ? 'bg-green-500/15' : 'bg-red-500/15'
@@ -23,7 +23,7 @@ const TransactionList = ({ transactions, onRemove }) => {
             )}
           </span>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm text-ink/80">{t.note || (t.type === 'earned' ? 'Earned' : 'Spent')}</p>
+            <p className="break-words text-sm text-ink/80">{t.note || (t.type === 'earned' ? 'Earned' : 'Spent')}</p>
           </div>
           <span className={`shrink-0 font-semibold ${t.type === 'earned' ? 'text-green-400' : 'text-red-400'}`}>
             {t.type === 'earned' ? '+' : '-'}
