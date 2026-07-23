@@ -50,6 +50,14 @@ app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/explore', exploreRoutes);
 app.use('/api/profile', profileRoutes);
 
+// Health check
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "LifeGrid API is running"
+  });
+});
+
 app.use(notFound);
 app.use(errorHandler);
 
