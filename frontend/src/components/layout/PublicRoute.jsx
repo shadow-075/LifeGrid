@@ -2,10 +2,13 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import PageLoader from '../ui/PageLoader';
 
-const PublicRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+const WAKE_MESSAGE =
+  "Waking up the server - our free hosting tier falls asleep when idle, this can take up to 30 seconds...";
 
-  if (loading) return <PageLoader />;
+const PublicRoute = ({ children }) => {
+  const { isAuthenticated, loading, wakingServer } = useAuth();
+
+  if (loading) return <PageLoader message={wakingServer ? WAKE_MESSAGE : undefined} />;
   if (isAuthenticated) return <Navigate to="/" replace />;
 
   return children;

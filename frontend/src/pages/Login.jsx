@@ -14,12 +14,14 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [waking, setWaking] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+    const wakeTimer = setTimeout(() => setWaking(true), 3500);
     try {
       await login(email, password);
       toast.success('Welcome back!');
@@ -27,6 +29,8 @@ const Login = () => {
     } catch (err) {
       setError(err.response?.data?.message || 'Could not log in');
     } finally {
+      clearTimeout(wakeTimer);
+      setWaking(false);
       setLoading(false);
     }
   };
@@ -95,6 +99,11 @@ const Login = () => {
             <LogIn size={16} />
             {loading ? 'Logging in...' : 'Log in'}
           </button>
+          {waking && (
+            <p className="text-center text-xs text-ink/40">
+              Waking up the server - this can take up to 30 seconds...
+            </p>
+          )}
         </form>
 
         <p className="mt-6 text-center text-sm text-ink/40">

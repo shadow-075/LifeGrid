@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Trash2, Save } from 'lucide-react';
 import RatingSlider from './RatingSlider';
+import TransactionList from './TransactionList';
+import AddTransactionForm from './AddTransactionForm';
 import Card from '../ui/Card';
 
 const draftKey = (date) => `lifegrid_draft_${date}`;
@@ -9,11 +11,8 @@ const draftKey = (date) => `lifegrid_draft_${date}`;
 const EntryForm = ({ date, initialData, onSubmit, onDelete, submitting }) => {
   const [rating, setRating] = useState(initialData?.rating ?? 5);
   const [diary, setDiary] = useState(initialData?.diary ?? '');
-  const [earned, setEarned] = useState(initialData?.earned ?? 0);
-  const [spent, setSpent] = useState(initialData?.spent ?? 0);
-  const [moneyNote, setMoneyNote] = useState(initialData?.moneyNote ?? '');
+  const [transactions, setTransactions] = useState(initialData?.transactions ?? []);
 
-  // Restore an unsaved draft only when there's no existing entry yet
   useEffect(() => {
     if (initialData) return;
     const raw = localStorage.getItem(draftKey(date));
@@ -22,9 +21,7 @@ const EntryForm = ({ date, initialData, onSubmit, onDelete, submitting }) => {
         const draft = JSON.parse(raw);
         setRating(draft.rating ?? 5);
         setDiary(draft.diary ?? '');
-        setEarned(draft.earned ?? 0);
-        setSpent(draft.spent ?? 0);
-        setMoneyNote(draft.moneyNote ?? '');
+        setTransactions(draft.transactions ?? []);
       } catch {
         // ignore corrupt draft
       }
@@ -32,28 +29,25 @@ const EntryForm = ({ date, initialData, onSubmit, onDelete, submitting }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date]);
 
-  // Autosave draft every time an untouched field changes, debounced lightly via effect
   useEffect(() => {
     if (initialData) return;
     const timeout = setTimeout(() => {
-      localStorage.setItem(draftKey(date), JSON.stringify({ rating, diary, earned, spent, moneyNote }));
+      localStorage.setItem(draftKey(date), JSON.stringify({ rating, diary, transactions }));
     }, 400);
     return () => clearTimeout(timeout);
-  }, [rating, diary, earned, spent, moneyNote, date, initialData]);
+  }, [rating, diary, transactions, date, initialData]);
 
-  const net = (Number(earned) || 0) - (Number(spent) || 0);
+  const totalEarned = transactions.filter((t) => t.type === 'earned').reduce((sum, t) => sum + Number(t.amount), 0);
+  const totalSpent = transactions.filter((t) => t.type === 'spent').reduce((sum, t) => sum + Number(t.amount), 0);
+  const net = totalEarned - totalSpent;
+
+  const handleAddTransaction = (t) => setTransactions((prev) => [...prev, t]);
+  const handleRemoveTransaction = (index) => setTransactions((prev) => prev.filter((_, i) => i !== index));
 
   const handleSubmit = (e) => {
     e.preventDefault();
     localStorage.removeItem(draftKey(date));
-    onSubmit({
-      date,
-      rating,
-      diary,
-      earned: Number(earned) || 0,
-      spent: Number(spent) || 0,
-      moneyNote,
-    });
+    onSubmit({ date, rating, diary, transactions });
   };
 
   return (
@@ -83,47 +77,30 @@ const EntryForm = ({ date, initialData, onSubmit, onDelete, submitting }) => {
 
       <Card>
         <label className="mb-3 block text-sm font-medium text-ink/60">Money</label>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="mb-1 block text-xs text-ink/40">Earned</label>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={earned}
-              onChange={(e) => setEarned(e.target.value)}
-              className="focus-ring w-full rounded-lg border border-ink/10 bg-ink/5 p-2.5 text-sm text-ink"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs text-ink/40">Spent</label>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={spent}
-              onChange={(e) => setSpent(e.target.value)}
-              className="focus-ring w-full rounded-lg border border-ink/10 bg-ink/5 p-2.5 text-sm text-ink"
-            />
-          </div>
+
+        <TransactionList transactions={transactions} onRemove={handleRemoveTransaction} />
+
+        <div className="mt-3">
+          <AddTransactionForm onAdd={handleAddTransaction} />
         </div>
-        <div className="mt-4">
-          <label className="mb-1 block text-xs text-ink/40">Note</label>
-          <input
-            type="text"
-            maxLength={200}
-            value={moneyNote}
-            onChange={(e) => setMoneyNote(e.target.value)}
-            placeholder="What was it for?"
-            className="focus-ring w-full rounded-lg border border-ink/10 bg-ink/5 p-2.5 text-sm text-ink placeholder:text-ink/25"
-          />
-        </div>
-        <div className="mt-4 flex items-center justify-between rounded-lg bg-ink/5 px-3 py-2">
-          <span className="text-sm text-ink/60">Net</span>
-          <span className={`font-bold ${net >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-            {net >= 0 ? '+' : ''}
-            {net.toLocaleString()}
-          </span>
+
+        <div className="mt-4 space-y-2 rounded-lg bg-ink/5 p-3">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-ink/60">Total earned</span>
+            <span className="font-semibold text-green-400">+{totalEarned.toLocaleString()}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-ink/60">Total spent</span>
+            <span className="font-semibold text-red-400">-{totalSpent.toLocaleString()}</span>
+          </div>
+          <div className="my-1 h-px bg-ink/10" />
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-ink/70">Net</span>
+            <span className={`font-bold ${net >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              {net >= 0 ? '+' : ''}
+              {net.toLocaleString()}
+            </span>
+          </div>
         </div>
       </Card>
 

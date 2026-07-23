@@ -45,7 +45,7 @@ const getPublicProfileByUsername = asyncHandler(async (req, res) => {
   }
 
   const entries = await DailyEntry.find({ user: user._id })
-    .select('date rating diary earned spent moneyNote createdAt')
+    .select('date rating diary createdAt')
     .sort({ date: -1 })
     .lean();
 

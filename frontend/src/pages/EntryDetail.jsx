@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import Card from '../components/ui/Card';
 import EmptyState from '../components/ui/EmptyState';
 import EntryForm from '../components/entry/EntryForm';
+import TransactionList from '../components/entry/TransactionList';
 import PageLoader from '../components/ui/PageLoader';
 import * as entryService from '../services/entryService';
 import useYearEntries from '../hooks/useYearEntries';
@@ -162,7 +163,8 @@ const EntryDetail = () => {
 
         <Card>
           <h3 className="mb-3 text-sm font-medium text-ink/50">Money</h3>
-          <div className="grid grid-cols-3 gap-3 text-center">
+          <TransactionList transactions={entry.transactions} />
+          <div className="mt-4 grid grid-cols-3 gap-3 text-center">
             <div>
               <p className="text-xs text-ink/40">Earned</p>
               <p className="font-semibold text-green-400">+{entry.earned}</p>
@@ -179,7 +181,6 @@ const EntryDetail = () => {
               </p>
             </div>
           </div>
-          {entry.moneyNote && <p className="mt-3 text-center text-xs text-ink/40">"{entry.moneyNote}"</p>}
         </Card>
 
         <p className="text-center text-xs text-ink/30">

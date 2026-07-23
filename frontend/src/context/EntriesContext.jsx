@@ -1,12 +1,23 @@
-import { createContext, useCallback, useContext, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import * as entryService from '../services/entryService';
+import { useAuth } from './AuthContext';
 
 const EntriesContext = createContext(null);
 
 export const EntriesProvider = ({ children }) => {
-  const [cache, setCache] = useState({}); // { [year]: entries[] }
-  const [loadingYears, setLoadingYears] = useState({}); // { [year]: boolean }
+  const [cache, setCache] = useState({});
+  const [loadingYears, setLoadingYears] = useState({});
   const inFlight = useRef({});
+  const { user } = useAuth();
+
+  // This provider sits above the router, so it survives logout/login without
+  // remounting. Without this, switching accounts would keep serving the
+  // previous user's cached year data until a manual refresh.
+  useEffect(() => {
+    setCache({});
+    setLoadingYears({});
+    inFlight.current = {};
+  }, [user?.id]);
 
   const fetchYear = useCallback(
     async (year, { force = false } = {}) => {

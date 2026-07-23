@@ -4,8 +4,6 @@ const User = require('../models/User');
 const calculateStreaks = require('../utils/streak');
 const { isEditableDate, isFutureDate } = require('../utils/dateHelpers');
 
-// Recomputes and persists the user's streaks from their full entry history.
-// Called after any create/update/delete so the numbers never drift.
 const refreshUserStreaks = async (userId) => {
   const entries = await DailyEntry.find({ user: userId }).select('date').lean();
   const { currentStreak, longestStreak } = calculateStreaks(entries.map((e) => e.date));
@@ -13,10 +11,18 @@ const refreshUserStreaks = async (userId) => {
   return { currentStreak, longestStreak };
 };
 
-// @desc    Get every entry for a given calendar year (lightweight - powers both
-//          the month heatmap and the new full-year heatmap, plus client-side stats)
-// @route   GET /api/entries/year/:year
-// @access  Private
+// Sums a lean (plain-object) entry's transactions into { earned, spent } - used
+// wherever we fetch with .lean() and so don't get the schema's virtuals for free
+const sumTransactions = (transactions = []) => {
+  let earned = 0;
+  let spent = 0;
+  transactions.forEach((t) => {
+    if (t.type === 'earned') earned += t.amount;
+    else if (t.type === 'spent') spent += t.amount;
+  });
+  return { earned, spent };
+};
+
 const getEntriesForYear = asyncHandler(async (req, res) => {
   const year = parseInt(req.params.year, 10);
   if (!year || year < 2000 || year > 2200) {
@@ -31,16 +37,18 @@ const getEntriesForYear = asyncHandler(async (req, res) => {
     user: req.user._id,
     date: { $gte: start, $lte: end },
   })
-    .select('date rating earned spent')
+    .select('date rating transactions')
     .sort({ date: 1 })
     .lean();
 
-  res.json({ success: true, year, entries });
+  const mapped = entries.map((e) => {
+    const { earned, spent } = sumTransactions(e.transactions);
+    return { date: e.date, rating: e.rating, earned, spent };
+  });
+
+  res.json({ success: true, year, entries: mapped });
 });
 
-// @desc    Get a single day's full entry (diary included)
-// @route   GET /api/entries/:date
-// @access  Private
 const getEntryByDate = asyncHandler(async (req, res) => {
   const entry = await DailyEntry.findOne({ user: req.user._id, date: req.params.date });
 
@@ -48,7 +56,7 @@ const getEntryByDate = asyncHandler(async (req, res) => {
     return res.json({
       success: true,
       entry: null,
-      editable: !isFutureDate(req.params.date) && isEditableDate(req.params.date),
+      editable: isEditableDate(req.params.date),
       isFuture: isFutureDate(req.params.date),
     });
   }
@@ -61,11 +69,8 @@ const getEntryByDate = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Create today's (or yesterday's) entry
-// @route   POST /api/entries
-// @access  Private
 const createEntry = asyncHandler(async (req, res) => {
-  const { date, rating, diary, earned, spent, moneyNote } = req.body;
+  const { date, rating, diary, transactions } = req.body;
 
   if (isFutureDate(date)) {
     res.status(400);
@@ -87,9 +92,7 @@ const createEntry = asyncHandler(async (req, res) => {
     date,
     rating,
     diary,
-    earned: earned || 0,
-    spent: spent || 0,
-    moneyNote,
+    transactions: transactions || [],
   });
 
   const streaks = await refreshUserStreaks(req.user._id);
@@ -97,9 +100,6 @@ const createEntry = asyncHandler(async (req, res) => {
   res.status(201).json({ success: true, entry, streaks });
 });
 
-// @desc    Update an existing entry (only today/yesterday)
-// @route   PUT /api/entries/:date
-// @access  Private
 const updateEntry = asyncHandler(async (req, res) => {
   const { date } = req.params;
 
@@ -114,12 +114,10 @@ const updateEntry = asyncHandler(async (req, res) => {
     throw new Error('Only today or yesterday can be edited');
   }
 
-  const { rating, diary, earned, spent, moneyNote } = req.body;
+  const { rating, diary, transactions } = req.body;
   if (rating !== undefined) entry.rating = rating;
   if (diary !== undefined) entry.diary = diary;
-  if (earned !== undefined) entry.earned = earned;
-  if (spent !== undefined) entry.spent = spent;
-  if (moneyNote !== undefined) entry.moneyNote = moneyNote;
+  if (transactions !== undefined) entry.transactions = transactions;
 
   await entry.save();
   const streaks = await refreshUserStreaks(req.user._id);
@@ -127,9 +125,6 @@ const updateEntry = asyncHandler(async (req, res) => {
   res.json({ success: true, entry, streaks });
 });
 
-// @desc    Delete an entry (only today/yesterday)
-// @route   DELETE /api/entries/:date
-// @access  Private
 const deleteEntry = asyncHandler(async (req, res) => {
   const { date } = req.params;
 

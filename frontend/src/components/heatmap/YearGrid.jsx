@@ -44,7 +44,9 @@ const YearGrid = ({ year, entryMap, onDayClick }) => {
 
   return (
     <div className="overflow-x-auto pb-2">
-      <div className="grid grid-cols-6 gap-x-6 gap-y-8">
+      {/* 2 columns on phones, scaling up to the full 6x2 layout on larger screens
+          so month blocks wrap instead of overflowing on narrow viewports */}
+      <div className="grid grid-cols-2 gap-x-4 gap-y-6 min-[400px]:grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 sm:gap-x-6 sm:gap-y-8">
         {months.map((month) => (
           <div key={month.label} className="flex flex-col">
             <div className="text-[11px] text-ink/40 mb-2">
