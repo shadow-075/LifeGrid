@@ -1,0 +1,24 @@
+
+<svg width="200" height="70" viewBox="0 0 200 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Background -->
+  <rect width="200" height="70"  fill="#111216"/>
+
+  <!-- Heatmap mark -->
+  <g transform="translate(18,18)">
+    <rect width="14" height="14" rx="4" fill="#EA580C"/>
+    <rect x="18" width="14" height="14" rx="4" fill="#EAB308"/>
+    <rect y="18" width="14" height="14" rx="4" fill="#4ADE80"/>
+    <rect x="18" y="18" width="14" height="14" rx="4" fill="#10B981"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="62" y="44"
+        font-family="Arial, Helvetica, sans-serif"
+        font-size="34"
+        font-weight="600"
+        letter-spacing="-1">
+    <tspan fill="#F9FAFB">Life</tspan><tspan fill="#6C5CE7">Grid</tspan>
+  </text>
+
+</svg>

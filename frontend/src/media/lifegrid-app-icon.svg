@@ -1,0 +1,15 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="#111216"/>
+  <!-- Heatmap Mark -->
+  <g transform="translate(212,212)">
+    <!-- Top Left -->
+    <rect width="280" height="280" rx="70" fill="#EA580C"/>
+    <!-- Top Right -->
+    <rect x="320" width="280" height="280" rx="70" fill="#EAB308"/>
+    <!-- Bottom Left -->
+    <rect y="320" width="280" height="280" rx="70" fill="#4ADE80"/>
+    <!-- Bottom Right -->
+    <rect x="320" y="320" width="280" height="280" rx="70" fill="#10B981"/>
+  </g>
+</svg>

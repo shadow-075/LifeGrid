@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root,
+.dark {
+  --bg: 8 9 13; /* #08090D */
+  --surface: 18 20 27; /* #12141B */
+  --ink: 245 246 248; /* #F5F6F8 */
+}
+
+html:not(.dark) {
+  --bg: 247 247 250; /* #F7F7FA */
+  --surface: 255 255 255; /* #FFFFFF */
+  --ink: 20 22 28; /* #14161C */
+}
+
+html.dark body {
+  background-color: rgb(var(--bg));
+  color: rgb(var(--ink));
+}
+
+html:not(.dark) body {
+  background-color: rgb(var(--bg));
+  color: rgb(var(--ink));
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(127, 127, 127, 0.35) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(127, 127, 127, 0.35);
+  border-radius: 999px;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+html:not(.dark) .glass {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(20, 22, 28, 0.08);
+}
+
+.popover {
+  background: rgb(var(--surface));
+  border: 1px solid rgba(127, 127, 127, 0.16);
+}
+
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 2px rgb(var(--bg)), 0 0 0 4px #6c5ce7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
