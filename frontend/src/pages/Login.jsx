@@ -101,7 +101,7 @@ const Login = () => {
           </button>
           {waking && (
             <p className="text-center text-xs text-ink/40">
-              Waking up the server - this can take up to 30 seconds...
+              Waking up the server, this can take up to 30 seconds...
             </p>
           )}
         </form>

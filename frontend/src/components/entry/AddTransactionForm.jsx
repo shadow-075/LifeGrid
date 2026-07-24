@@ -59,7 +59,7 @@ const AddTransactionForm = ({ onAdd }) => {
       <input
         type="number"
         min="0"
-        step="0.01"
+        step="10"
         autoFocus
         value={amount}
         onChange={(e) => setAmount(e.target.value)}

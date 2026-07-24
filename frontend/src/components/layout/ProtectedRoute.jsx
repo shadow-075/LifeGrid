@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import PageLoader from '../ui/PageLoader';
 
 const WAKE_MESSAGE =
-  "Waking up the server - our free hosting tier falls asleep when idle, this can take up to 30 seconds...";
+  "Waking up the server, this can take up to 30 seconds...";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading, wakingServer } = useAuth();
